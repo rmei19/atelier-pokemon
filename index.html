@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atelier Pokémon — cartes, decks et règles</title>
+<style>
+:root{--ink:#243044;--line:#d7dfeb;--blue:#2463a6;--bg:#f4f7fb}
+*{box-sizing:border-box}body{margin:0;font:16px/1.4 system-ui,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{padding:22px 16px 12px;text-align:center;background:white;border-bottom:1px solid var(--line)}h1{margin:0 0 4px;font-size:clamp(1.5rem,4vw,2.2rem)}header p{margin:0;color:#526176}
+main{max-width:1250px;margin:auto;padding:16px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.tabs button,.btn{border:1px solid var(--line);background:white;border-radius:10px;padding:10px 14px;font:inherit;cursor:pointer}.tabs button.active,.btn.primary{background:var(--blue);color:white;border-color:var(--blue)}
+.panel{display:none}.panel.active{display:block}.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}.toolbar input,.toolbar select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:white}.note{background:#fff7db;border:1px solid #f0df9c;border-radius:10px;padding:12px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}.poke{background:white;border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;cursor:pointer;min-width:0}.poke img{width:100%;height:150px;object-fit:contain}.poke strong{display:block}.muted{color:#64748b;font-size:.9rem}.status{padding:10px 0}.deck-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.deck{background:white;border:1px solid var(--line);border-radius:12px;padding:14px}.deck h3{margin-top:0}.card-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.mini{border:1px solid var(--line);border-radius:8px;padding:6px;text-align:center;font-size:.8rem}.mini img{width:100%;height:130px;object-fit:contain}.rules{background:white;padding:18px;border:1px solid var(--line);border-radius:12px;margin:12px 0}.rules h3{margin-top:0}.modal{display:none;position:fixed;inset:0;background:#0009;z-index:10;padding:20px;overflow:auto}.modal.open{display:block}.modalbox{max-width:1000px;margin:20px auto;background:white;border-radius:14px;padding:18px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:center}.cards-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}.cards-results img{width:100%;height:230px;object-fit:contain}.cardresult{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}.print-only{display:none}
+@media(max-width:600px){main{padding:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poke img{height:125px}.card-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center;gap:10px;padding:10px}.lightbox.open{display:flex}.lightbox figure{margin:0;text-align:center;color:#fff}.lightbox img{max-height:84vh;max-width:78vw;object-fit:contain;border-radius:10px}.lightbox .btn{flex:none}#lbClose{position:fixed;top:10px;right:10px}img.zoomable{cursor:zoom-in}.emini img{display:block;margin:0 auto 6px;height:96px;width:auto;max-width:100%;object-fit:contain}.emini .noimg{height:96px;display:grid;place-items:center;margin-bottom:6px}.emini b{display:block;min-height:2.6em}.eslot>div:first-child{min-height:2.7em;display:flex;align-items:center;justify-content:center}.deck h4{margin:12px 0 4px}.tiny{padding:3px 8px;font-size:.82rem}.mini .tiny{margin-top:4px}.energy-box{margin-top:18px;background:white;border:1px solid var(--line);border-radius:12px;padding:14px}.energy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin-top:10px}.eslot{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}.eslot img{display:block;margin:4px auto;width:74px;aspect-ratio:63/88;object-fit:contain}.qty{display:flex;gap:4px;align-items:center;justify-content:center;margin:6px 0}.qty input{width:54px;text-align:center}.pick{display:flex;gap:8px;align-items:flex-start;background:white;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;max-width:330px}.pick input{margin-top:4px}.counter{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:700;font-size:.95rem}.counter.ok{background:#dff5e3;color:#1b6b2f}.counter.ko{background:#fde8e8;color:#9b1c1c}.warn{background:#fde8e8;border:1px solid #f3b4b4;border-radius:8px;padding:8px 10px;color:#7a1414}.btn:disabled{opacity:.45;cursor:not-allowed}.recap{display:none;background:white;border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}.recap h3{margin-top:0}#printArea{display:none}.rules.house{border:2px solid #d97706;background:#fffaf0}.rules.sheet h2{font-size:1.5rem}.rules.sheet li{margin:.5em 0}
+@media print{
+ @page{size:A4 portrait;margin:7mm}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body{background:white;color:#111;font-size:9pt}header,main>.tabs,.toolbar,.note,.no-print,.status,.modal,.recap{display:none!important}
+ main{max-width:none;padding:0}.panel{display:none!important}.panel.print-target{display:block!important}
+ body.printing-decks main{display:none!important}body.printing-decks #printArea{display:block}
+ .print-page{break-after:page;page-break-after:always}.print-page:last-child{break-after:auto;page-break-after:auto}
+ .print-title{text-align:center;font-size:9pt;height:6mm;line-height:6mm;margin:0 0 2mm;color:#333}
+ .print-grid{display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm;gap:2mm 3mm;justify-content:center}
+ .print-card{width:63mm;height:88mm;border:.2mm solid #777;border-radius:2mm;overflow:hidden;position:relative;break-inside:avoid;page-break-inside:avoid;background:#fff}
+ .print-card img{display:block;width:100%;height:100%;object-fit:contain}
+ .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:rotate(-35deg);font-size:11pt;font-weight:900;letter-spacing:.5pt;text-align:center;color:rgba(30,30,30,.30);text-shadow:0 0 1.5mm rgba(255,255,255,.85);pointer-events:none}
+ .rules{border:0;padding:0;margin:0 0 6mm;font-size:11pt;break-inside:avoid;page-break-inside:avoid}.rules h2{font-size:17pt}.rules h3{font-size:13pt}
+ .rules.sheet{break-before:page;page-break-before:always;break-after:page;page-break-after:always;font-size:14pt}.rules.sheet h2{font-size:22pt}
+ .rules.house{border:.5mm solid #b45309;padding:4mm;background:#fffaf0}
+ #rules[data-print="30"] [data-fmt="60"],#rules[data-print="60"] [data-fmt="30"]{display:none!important}
+}
+</style>
+</head>
+<body>
+<header><h1>Atelier Pokémon</h1><p>Pokédex complété • cartes originales • decks imprimables • règles pour jouer</p></header>
+<main>
+<div class="tabs no-print">
+<button class="active" data-tab="dex">Pokédex</button><button data-tab="deck">Decks</button><button data-tab="rules">Règles imprimables</button>
+</div>
+<section id="dex" class="panel active">
+<h2>Pokédex de Kanto et Johto</h2>
+<p>Au démarrage, un seul Pokémon tiré au hasard est chargé pour vérifier que tout fonctionne ; les 251 Pokémon de Kanto et Johto se chargent à la demande, ou au fil de ta recherche. Les illustrations de Pokémon manquants dans l'ancien catalogue sont affichées depuis le Pokédex ; les cartes originales sont recherchées séparément.</p>
+<div class="toolbar no-print"><input id="search" placeholder="Nom français ou numéro…" aria-label="Rechercher"><select id="sort"><option value="num">Ordre du Pokédex</option><option value="name">Nom A–Z</option></select><button class="btn" id="randomDex">Un autre au hasard</button><button class="btn" id="loadAllDex">Charger tout le Pokédex (251)</button><button class="btn" id="loadCards">Trouver cartes originales</button><button class="btn" id="printView">Imprimer la vue</button></div>
+<div class="note">Les cartes officielles sont chargées depuis le catalogue TCGdex. Leur disponibilité dépend de l'API et de la connexion Internet. Les impressions de cartes servent de proxys de jeu et ne sont pas des cartes authentiques.</div>
+<div id="dexstatus" class="status">Chargement d'un Pokémon au hasard…</div><div id="dexgrid" class="grid"></div>
+</section>
+<section id="deck" class="panel">
+<h2>Decks de découverte — 30 cartes chacun</h2>
+<div class="note">Pour tester tout de suite : chaque deck est composé de cartes Pokémon originales du catalogue (image vérifiée), sans cartes Dresseur : 24 cartes à imprimer pour un petit deck de 30 cartes, 48 pour un grand deck de 60 cartes. Chaque deck inclut ses Énergies conseillées, et tu peux régler la quantité de chaque carte avant d'imprimer. La section « Cartes Énergie supplémentaires » sous les decks sert à en imprimer en plus. Clique sur une carte pour l'agrandir. Pour jouer sans frustration, commence par les niveaux 1 à 3 : ce sont des decks d'un seul type avec des Pokémon incolores, qui se jouent avec n'importe quelle Énergie. Les decks « Découverte » sont de simples sélections thématiques, non équilibrées. Une carte imprimée depuis une image en ligne reste un proxy, pas une carte officielle. Les règles ci-dessous sont volontairement simplifiées et ne reproduisent pas toutes les règles du JCC officiel. Un deck ne peut être imprimé que lorsque toutes ses cartes sont prêtes.</div>
+<p class="no-print"><b>1. Choisis le niveau</b> :</p>
+<div id="sizePick" class="toolbar no-print"></div>
+<p class="no-print"><b>2. Choisis les decks à préparer</b> (par défaut : Feu et Eau, pour une partie à deux) :</p>
+<div id="deckPick" class="toolbar no-print"></div>
+<div class="toolbar no-print"><button class="btn primary" id="buildDecks">3. Charger les cartes et préparer les decks choisis</button><button class="btn" id="printDecks" disabled>Imprimer les decks (A4)</button></div>
+<div id="deckstatus" class="status">Clique sur « Charger les cartes… ». La recherche utilise le catalogue français TCGdex.</div>
+<div id="recap" class="recap no-print"></div>
+<div class="deck-grid" id="decks"></div>
+<div class="energy-box no-print" id="energies">
+<h3>Cartes Énergie supplémentaires (hors decks)</h3>
+<p class="muted">Chaque deck contient déjà ses Énergies conseillées, avec leur quantité réglable. Utilise cette section pour en imprimer d'autres, à volonté. Quantités conseillées : niveau 1 = réserve de 12 (hors du deck) ; niveau 2 = 10 dans le deck ; niveau 3 = 20 dans le deck ; decks thématiques = 6 (30 cartes) ou 12 (60 cartes). Ajoute 2 ou 3 cartes de rechange par type. Clique sur une carte pour l'agrandir.</p>
+<div class="toolbar"><button class="btn" id="loadEnergies">Charger les cartes Énergie</button><button class="btn" id="zeroEnergies">Tout remettre à 0</button><button class="btn primary" id="printEnergies" disabled>Imprimer les Énergies</button></div>
+<div id="energytotal" class="status"></div>
+<div id="energystatus" class="status">Les cartes Énergie se chargent automatiquement après la préparation d'un deck, ou avec « Charger les cartes Énergie ».</div>
+<div id="energygrid" class="energy-grid"></div>
+</div>
+<div class="energy-box no-print" id="sheetbox">
+<h3>Planche à la carte (cartes à l'unité)</h3>
+<p class="muted">Compose une planche de 9 cartes (une page A4) carte par carte : cherche un Pokémon par nom ou par numéro et choisis la variante, ou ajoute une carte d'un deck ou une Énergie avec « + planche ». Les cartes restent mémorisées d'une visite à l'autre.</p>
+<div class="toolbar"><input id="sheetSearch" type="search" placeholder="Nom ou numéro du Pokémon…" autocomplete="off"><button class="btn" id="sheetClear">Vider la planche</button><button class="btn primary" id="printSheet" disabled>Imprimer la planche</button></div>
+<div id="sheetResults" class="toolbar"></div>
+<div id="sheettotal" class="status"></div>
+<div id="sheetgrid" class="energy-grid"></div>
+</div>
+</section>
+<section id="rules" class="panel">
+<h2>Aide et règles imprimables</h2>
+<div class="toolbar no-print"><button class="btn primary" id="printRules">Imprimer toutes les règles</button><button class="btn" id="printRules30">Règles niveaux 1 et 2</button><button class="btn" id="printRules60">Règles niveau 3 (60 cartes)</button></div>
+<div class="rules" data-fmt="30">
+<h2>Format 30 cartes — 1. La règle toute simple (à partir de 5 ans)</h2>
+<p><b>But :</b> faire perdre toute sa force (« points de vie ») au Pokémon de l'autre, trois fois. Le premier qui y arrive trois fois a gagné !</p>
+<ol><li>Chacun mélange son tas de 30 cartes et prend 5 cartes en main.</li><li>Chacun choisit un Pokémon « héros » et le pose devant lui, face visible.</li><li>À ton tour : tu prends 1 carte, tu donnes une Énergie ⚡ à ton héros si tu en as une, puis tu attaques.</li><li>Quand tu attaques, l'autre joueur pose 2 jetons sur son héros (chaque jeton vaut 10 dégâts).</li><li>Quand les jetons valent autant que les points de vie (PV) de la carte, le Pokémon est K.O. ! Un grand peut aider à compter.</li><li>Celui qui a fait un K.O. gagne 1 point. L'autre choisit un nouveau héros.</li></ol>
+<p>On ne s'occupe pas des petits textes ni des mots difficiles : on regarde les images et on s'amuse.</p>
+</div>
+<div class="rules" data-fmt="30">
+<h2>2. Mise en place d'une partie</h2>
+<ol><li>Chaque joueur a son deck de 30 cartes (24 Pokémon + 6 Énergies), bien mélangé.</li><li>Chacun pioche 5 cartes.</li><li>Chacun pose un Pokémon actif face visible. S'il le peut, il pose aussi jusqu'à 2 Pokémon sur son banc.</li><li>On choisit qui commence (pierre-feuille-ciseaux, ou le plus jeune).</li><li>Préparez des jetons ou de petits cubes pour compter les dégâts et les points.</li></ol>
+</div>
+<div class="rules" data-fmt="30">
+<h2>3. Déroulement d'un tour</h2>
+<ol><li><b>Piocher</b> une carte.</li><li><b>Préparer :</b> poser un Pokémon de base sur le banc ; attacher au plus une Énergie à un Pokémon.</li><li><b>Attaquer</b> avec le Pokémon actif (une seule attaque par tour).</li><li><b>Vérifier</b> si le Pokémon attaqué est K.O.</li><li><b>Finir</b> son tour : c'est à l'autre joueur.</li></ol>
+</div>
+<div class="rules" data-fmt="30">
+<h2>4. Attaques, dégâts et Pokémon K.O.</h2>
+<ul><li><b>Attaque simple (conseillée au début) :</b> l'attaque inflige toujours 20 dégâts, sans tenir compte du coût en Énergie imprimé.</li><li><b>Version un peu plus grande (facultative) :</b> on utilise les dégâts imprimés sur l'attaque, si le Pokémon a assez d'Énergies.</li><li><b>Compter les dégâts :</b> 1 jeton = 10 dégâts, posé sur le Pokémon touché. Les dégâts restent d'un tour à l'autre.</li><li><b>K.O. :</b> quand les dégâts atteignent ou dépassent les PV, le Pokémon est K.O. Il est écarté et l'adversaire marque 1 point.</li><li><b>Remplacement :</b> le joueur dont le Pokémon est K.O. choisit un Pokémon de son banc comme nouveau Pokémon actif. S'il n'en a pas, il en pose un de sa main ; s'il n'en a aucun, il perd.</li><li><b>Victoire :</b> le premier joueur à 3 points gagne.</li><li>On ignore faiblesses, résistances, talents, états spéciaux et évolutions.</li></ul>
+</div>
+<div class="rules" data-fmt="30">
+<h2>4 bis. Niveau 1 — Règle de la réserve d'Énergie (decks Enfant)</h2>
+<p>Pour les decks « Enfant » : 24 Pokémon de base du même type (ou incolores, qui acceptent toutes les Énergies) et, <b>à côté du deck</b>, une réserve de 12 Énergies du même type (cartes ou jetons).</p>
+<ol><li>Mélange ton deck et pioche <b>5 cartes</b>. Pose un Pokémon « héros » devant toi et jusqu'à 3 autres sur ton Banc.</li><li>Pas d'évolution : tous les Pokémon du deck sont déjà prêts à jouer.</li><li>À ton tour : <b>pioche 1 carte</b> ; <b>prends 1 Énergie dans ta réserve</b> et pose-la sur l'un de tes Pokémon ; puis <b>attaque</b>.</li><li>Attaque : si ton héros a au moins 1 Énergie, il inflige <b>20 dégâts</b> ; avec 2 Énergies ou plus, <b>30 dégâts</b> (1 jeton = 10 dégâts).</li><li>K.O. : quand les dégâts atteignent les PV. Les Énergies du Pokémon K.O. retournent dans la réserve. Le premier à <b>3 K.O.</b> gagne.</li></ol>
+<p>Pourquoi une réserve ? On a de l'Énergie à chaque tour : plus de parties bloquées parce qu'aucune Énergie n'a été piochée.</p>
+</div>
+<div class="rules" data-fmt="30">
+<h2>4 ter. Niveau 2 — Débutant (decks de 30 cartes mono-type)</h2>
+<p>20 Pokémon (avec leurs évolutions) + 10 Énergies du même type, mélangés dans le deck.</p>
+<ol><li>Pioche <b>5 cartes</b>. Pose un Pokémon de base face cachée (Actif) et jusqu'à 3 sur le Banc. Pas de Pokémon de base ? Montre ta main, remélange et repioche 5 cartes.</li><li>Pile ou face pour commencer. Celui qui commence n'attaque pas à son premier tour.</li><li>Ton tour : <b>piocher</b> ; <b>1 Énergie</b> au maximum à attacher ; poser des Pokémon de base sur le Banc ; <b>évoluer</b> (pas le tour de la pose, ni au tout premier tour de la partie) ; <b>retraite</b> 1 fois (défausse le nombre d'Énergies indiqué) ; <b>attaquer</b> (fin du tour).</li><li>Les attaques utilisent les dégâts et les Énergies écrits sur la carte. Une Énergie « incolore » (rond gris) peut être payée avec n'importe quelle Énergie.</li><li>K.O. = 1 point. Le premier à <b>3 points</b> gagne. Si tu ne peux plus piocher au début de ton tour, tu perds.</li></ol>
+<p>Astuce : une évolution reste en main tant que son Pokémon de base n'est pas en jeu. Pose les Pokémon de base en premier.</p>
+</div>
+<div class="rules sheet" data-fmt="30">
+<h2>5. Aide-mémoire 30 cartes (1 page A4)</h2>
+<p><b>But :</b> 3 Pokémon K.O. = victoire.</p>
+<ul><li><b>Début :</b> deck de 30 cartes mélangé, 5 cartes en main, 1 Pokémon actif, jusqu'à 2 sur le banc.</li><li><b>1 — Piocher :</b> 1 carte.</li><li><b>2 — Préparer :</b> poser un Pokémon de base sur le banc ; attacher 1 Énergie au maximum.</li><li><b>3 — Attaquer :</b> 20 dégâts (2 jetons).</li><li><b>4 — Vérifier :</b> dégâts ≥ PV ? Alors K.O. et 1 point pour l'attaquant.</li><li><b>5 — Remplacer :</b> le joueur K.O. choisit un Pokémon du banc.</li></ul>
+<p><b>Compter :</b> 1 jeton = 10 dégâts. <b>Gagner :</b> 3 points.</p>
+<p><i>Règles maison simplifiées — pas les règles officielles du JCC Pokémon.</i></p>
+</div>
+<div class="rules" data-fmt="60">
+<h2>Format 60 cartes — 6. Règles du grand deck (règles avancées maison)</h2>
+<p>Pour jouer avec un grand deck de 60 cartes (niveau 3 : <b>40 Pokémon + 20 Énergies</b> d'un seul type ; decks thématiques : 48 Pokémon + 12 Énergies), sans cartes Dresseur. Ces règles s'inspirent du JCC officiel mais restent des règles maison simplifiées.</p>
+<h3>Mise en place</h3>
+<ol><li>Mélange ton deck de 60 cartes et pioche <b>7 cartes</b>.</li><li>Pose face cachée un <b>Pokémon de base</b> comme Pokémon Actif, et jusqu'à <b>5 Pokémon de base</b> sur ton Banc. Si tu n'as aucun Pokémon de base : montre ta main, remélange et repioche 7 cartes.</li><li>Mets les <b>6 premières cartes</b> du dessus de ton deck face cachée : ce sont tes cartes Récompense.</li><li>Retournez vos Pokémon. Pile ou face pour savoir qui commence.</li></ol>
+<h3>Ton tour</h3>
+<ol><li><b>Piocher</b> une carte (si tu ne peux plus piocher au début de ton tour, tu perds).</li><li><b>Actions</b>, dans l'ordre que tu veux : poser des Pokémon de base sur le Banc (5 au maximum) ; <b>attacher 1 seule Énergie</b> de ta main à l'un de tes Pokémon ; <b>faire évoluer</b> un Pokémon (jamais le tour où il a été posé, ni au tout premier tour de la partie) ; <b>battre en retraite</b> une fois par tour en défaussant des Énergies du Pokémon Actif (selon son coût de retraite), puis choisir un Pokémon du Banc.</li><li><b>Attaquer</b> avec le Pokémon Actif : cela termine ton tour. Le joueur qui commence ne peut pas attaquer à son premier tour.</li></ol>
+<h3>Attaques, dégâts, K.O. et Récompenses</h3>
+<ul><li>Pour attaquer, le Pokémon doit avoir les Énergies demandées par l'attaque.</li><li>Les dégâts sont ceux écrits sur la carte. <b>Faiblesse</b> (en bas de la carte) : dégâts doublés si le type correspond. <b>Résistance</b> : dégâts réduits du nombre indiqué sur la carte. Les dégâts se comptent avec des jetons (1 jeton = 10 dégâts).</li><li><b>K.O.</b> : quand les dégâts atteignent ou dépassent les PV. Le Pokémon K.O. et ses cartes attachées sont défaussés.</li><li>Le joueur qui fait le K.O. prend <b>1 carte Récompense</b> — <b>2 cartes</b> si c'est un <b>Pokémon-ex</b>. Si une carte indique un autre nombre de Récompenses, suis la carte.</li><li>Le joueur dont le Pokémon Actif est K.O. en choisit un nouveau sur son Banc. S'il n'en a plus, il perd.</li><li><b>Endormi</b> et <b>Paralysé</b> : le Pokémon ne peut ni attaquer ni battre en retraite. Au début, on ignore les autres états spéciaux (Brûlé, Empoisonné, Confus) et les effets écrits sur les cartes qu'on ne comprend pas encore.</li></ul>
+<h3>Comment gagner</h3>
+<ul><li>Tu prends ta <b>6e carte Récompense</b>, ou</li><li>ton adversaire n'a <b>plus aucun Pokémon</b> en jeu, ou</li><li>ton adversaire <b>ne peut plus piocher</b> au début de son tour.</li></ul>
+</div>
+<div class="rules sheet" data-fmt="60">
+<h2>7. Aide-mémoire 60 cartes (1 page A4)</h2>
+<ul><li><b>Deck :</b> 60 cartes (Pokémon + Énergies, sans Dresseur). <b>Main :</b> 7 cartes. <b>Récompenses :</b> 6 cartes face cachée.</li><li><b>Terrain :</b> 1 Pokémon Actif + jusqu'à 5 sur le Banc.</li><li><b>1 — Piocher</b> 1 carte.</li><li><b>2 — Actions :</b> Banc (max 5) · <b>1 Énergie</b> par tour · évolution (pas le tour de la pose, pas au 1<sup>er</sup> tour de la partie) · retraite 1 fois (défausser des Énergies).</li><li><b>3 — Attaquer</b> (fin du tour). Le premier joueur n'attaque pas à son 1<sup>er</sup> tour.</li><li><b>K.O. :</b> dégâts ≥ PV → 1 Récompense (<b>2 pour un Pokémon-ex</b>) → nouveau Pokémon Actif.</li><li><b>Gagner :</b> 6 Récompenses, ou plus de Pokémon adverse, ou adversaire sans carte à piocher.</li><li><b>Faiblesse :</b> dégâts ×2. <b>Endormi / Paralysé :</b> ni attaque ni retraite.</li></ul>
+<p><i>Règles maison simplifiées — pas les règles officielles du JCC Pokémon.</i></p>
+</div>
+<div class="rules house" data-fmt="both">
+<h2>8. Règles maison ≠ JCC Pokémon officiel</h2>
+<p>Les decks de 30 et de 60 cartes de cet atelier et leurs règles simplifiées sont des <b>règles maison</b> destinées à découvrir le jeu. Elles sont <b>distinctes du JCC Pokémon officiel</b> et ne constituent pas un format officiel.</p>
+<p>Le JCC Pokémon officiel se joue normalement avec un deck de 60 cartes, des cartes Récompense, des règles précises de mise en place, d'Énergie, d'évolution, de retraite, de statut et de victoire. Ici : decks de 24 cartes avec réserve d'Énergies (niveau 1), de 30 cartes (niveau 2 ou thématiques ; victoire à 3 K.O.) ou de 60 cartes (48 Pokémon différents + 12 Énergies, sans cartes Dresseur, sans état spécial avancé). Dans le JCC officiel, un deck de 60 cartes ne contient normalement pas plus de 4 cartes du même nom (hors Énergies de base) et inclut des cartes Dresseur.</p>
+<p>Pour apprendre les règles complètes et à jour, consultez le site officiel Pokémon et le livret de règles fourni avec les produits du JCC.</p>
+</div>
+</section>
+</main>
+<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><div><h2 id="modalTitle">Cartes</h2><p id="modalSub" class="muted"></p></div><button class="btn" id="closeModal">Fermer ✕</button></div><div id="modalCards" class="cards-results"></div></div></div>
+<div id="lightbox" class="lightbox no-print" aria-hidden="true"><button class="btn" id="lbPrev" aria-label="Carte précédente">◀</button><figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption><button class="btn primary" id="lbAction" style="display:none">Choisir cette carte</button></figure><button class="btn" id="lbNext" aria-label="Carte suivante">▶</button><button class="btn" id="lbClose" aria-label="Fermer">✕</button></div>
+<div id="printArea" aria-hidden="true"></div>
+<script>
+const names=`Bulbizarre|Herbizarre|Florizarre|Salamèche|Reptincel|Dracaufeu|Carapuce|Carabaffe|Tortank|Chenipan|Chrysacier|Papilusion|Aspicot|Coconfort|Dardargnan|Roucool|Roucoups|Roucarnage|Rattata|Rattatac|Piafabec|Rapasdepic|Abo|Arbok|Pikachu|Raichu|Sabelette|Sablaireau|Nidoran♀|Nidorina|Nidoqueen|Nidoran♂|Nidorino|Nidoking|Mélofée|Mélodelfe|Goupix|Feunard|Rondoudou|Grodoudou|Nosferapti|Nosferalto|Mystherbe|Ortide|Rafflesia|Paras|Parasect|Mimitoss|Aéromite|Taupiqueur|Triopikeur|Miaouss|Persian|Psykokwak|Akwakwak|Férosinge|Colossinge|Caninos|Arcanin|Ptitard|Têtarte|Tartard|Abra|Kadabra|Alakazam|Machoc|Machopeur|Mackogneur|Chétiflor|Boustiflor|Empiflor|Tentacool|Tentacruel|Racaillou|Gravalanch|Grolem|Ponyta|Galopa|Ramoloss|Flagadoss|Magnéti|Magnéton|Canarticho|Doduo|Dodrio|Otaria|Lamantine|Tadmorv|Grotadmorv|Kokiyas|Crustabri|Fantominus|Spectrum|Ectoplasma|Onix|Soporifik|Hypnomade|Krabby|Krabboss|Voltorbe|Électrode|Noeunoeuf|Noadkoko|Osselait|Ossatueur|Kicklee|Tygnon|Excelangue|Smogo|Smogogo|Rhinocorne|Rhinoféros|Leveinard|Saquedeneu|Kangourex|Hypotrempe|Hypocéan|Poissirène|Poissoroy|Stari|Staross|M. Mime|Insécateur|Lippoutou|Élektek|Magmar|Scarabrute|Tauros|Magicarpe|Léviator|Lokhlass|Métamorph|Évoli|Aquali|Voltali|Pyroli|Porygon|Amonita|Amonistar|Kabuto|Kabutops|Ptéra|Ronflex|Artikodin|Électhor|Sulfura|Minidraco|Draco|Dracolosse|Mewtwo|Mew|Germignon|Macronium|Méganium|Héricendre|Feurisson|Typhlosion|Kaiminus|Crocrodil|Aligatueur|Fouinette|Fouinar|Hoothoot|Noarfang|Coxy|Coxyclaque|Mimigal|Migalos|Nostenfer|Loupio|Lanturn|Pichu|Mélo|Toudoudou|Togepi|Togetic|Natu|Xatu|Wattouat|Lainergie|Pharamp|Joliflor|Marill|Azumarill|Simularbre|Tarpaud|Granivol|Floravol|Cotovol|Capumain|Tournegrin|Héliatronc|Yanma|Axoloto|Maraiste|Mentali|Noctali|Cornèbre|Roigada|Feuforêve|Zarbi|Qulbutoké|Girafarig|Pomdepik|Foretress|Insolourdo|Scorplane|Steelix|Snubbull|Granbull|Qwilfish|Cizayox|Caratroc|Scarhino|Farfuret|Teddiursa|Ursaring|Limagma|Volcaropod|Marcacrin|Cochignon|Corayon|Rémoraid|Octillery|Cadoizo|Démanta|Airmure|Malosse|Démolosse|Hyporoi|Phanpy|Donphan|Porygon2|Cerfrousse|Queulorior|Debugant|Kapoera|Lippouti|Élekid|Magby|Écrémeuh|Leuphorie|Raikou|Entei|Suicune|Embrylex|Ymphect|Tyranocif|Lugia|Ho-Oh|Celebi`.split('|');
+const $=id=>document.getElementById(id);
+let pokemon=[],allCards=[],decks=[];
+function norm(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9♀♂]/g,'')}
+function imgUrl(p){return p.sprites?.other?.['official-artwork']?.front_default||p.sprites?.front_default||''}
+const dexCache=new Map();
+async function fetchPoke(id){
+ if(dexCache.has(id))return dexCache.get(id);
+ try{
+  const p=await getJSON('https://pokeapi.co/api/v2/pokemon/'+id);
+  if(!p||typeof p!=='object')return null;
+  const e={id,name:names[id-1]||String(p.name||id),apiName:String(p.name||''),sprites:p.sprites||{},types:Array.isArray(p.types)?p.types.map(t=>t&&t.type&&t.type.name).filter(Boolean):[]};
+  dexCache.set(id,e);return e;
+ }catch(err){return null}
+}
+function dexSet(ids){pokemon=ids.map(i=>dexCache.get(i)).filter(Boolean).sort((a,b)=>a.id-b.id)}
+async function randomDex(first){
+ const id=1+Math.floor(Math.random()*names.length);
+ $('dexstatus').textContent='Chargement d\'un Pokémon au hasard…';
+ const e=await fetchPoke(id);
+ if(!e){$('dexstatus').textContent='Impossible de charger les données Pokémon (PokéAPI). Vérifie la connexion Internet puis clique sur « Un autre au hasard ».';return}
+ dexSet([id]);renderDex();
+ $('dexstatus').textContent=`${first?'Test réussi : ':''}#${id} ${e.name} chargé au hasard. Clique sur « Charger tout le Pokédex (251) », ou cherche un nom ou un numéro.`;
+}
+function loadDex(){return randomDex(true)}
+async function loadAllDex(){
+ const ids=names.map((_,i)=>i+1).filter(i=>!dexCache.has(i));
+ await runPool(ids,async i=>{await fetchPoke(i)},8,(d,t)=>{$('dexstatus').textContent=`Chargement du Pokédex : ${d}/${t}…`});
+ dexSet(names.map((_,i)=>i+1));renderDex();
+ const miss=names.length-pokemon.length;
+ $('dexstatus').textContent=miss?`${pokemon.length} Pokémon affichés, ${miss} n'ont pas pu être chargés : clique à nouveau pour réessayer.`:`${pokemon.length} Pokémon affichés. Les cartes originales se chargent séparément.`;
+}
+let dexTimer=null;
+function onDexSearch(){
+ clearTimeout(dexTimer);
+ dexTimer=setTimeout(async()=>{
+  const q=norm($('search').value);
+  if(q&&pokemon.length<names.length){
+   const ids=names.map((_,i)=>i+1).filter(i=>norm(names[i-1]).includes(q)||String(i).includes(q)).slice(0,30);
+   const miss=ids.filter(i=>!dexCache.has(i));
+   if(miss.length){$('dexstatus').textContent=`Chargement de ${miss.length} Pokémon correspondant à la recherche…`;await runPool(miss,async i=>{await fetchPoke(i)},8)}
+   const have=new Set(pokemon.map(p=>p.id));ids.forEach(i=>{if(dexCache.has(i))have.add(i)});
+   dexSet([...have]);
+   $('dexstatus').textContent=`${ids.length} résultat(s) pour « ${$('search').value} » (chargés à la demande).`;
+  }
+  renderDex();
+ },250);
+}
+function renderDex(){
+ const q=norm($('search').value);let rows=pokemon.filter(p=>!q||norm(p.name).includes(q)||String(p.id).includes(q)||norm(p.apiName).includes(q));
+ if($('sort').value==='name')rows.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+ $('dexgrid').innerHTML=rows.map(p=>`<div class="poke" data-id="${p.id}"><img loading="lazy" src="${imgUrl(p)}" alt="${p.name}"><strong>#${String(p.id).padStart(3,'0')} ${p.name}</strong><span class="muted">${p.types.join(' · ')}</span></div>`).join('');
+ document.querySelectorAll('.poke').forEach(el=>el.onclick=()=>showCards(pokemon.find(p=>p.id===+el.dataset.id)));
+}
+
+$('randomDex').onclick=()=>randomDex(false);
+$('loadAllDex').onclick=loadAllDex;
+$('closeModal').onclick=()=>$('modal').classList.remove('open');
+$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab))});
+$('search').oninput=onDexSearch;$('sort').onchange=renderDex;
+$('loadCards').onclick=async()=>{try{await loadCardCatalog();$('dexstatus').textContent=`Catalogue chargé : ${allCards.length} entrées. Clique sur un Pokémon pour voir ses cartes.`}catch(e){$('dexstatus').textContent=e.message}};
+/* ===== Cartes : API TCGdex (français) =====
+   Structure réelle attendue (liste /cards) : [{id, localId, name, image?}] — `image` est une URL de base
+   SANS extension, et peut être absente. Fiche /cards/{id} : {id, name, category, dexId[], image?, set{name}...}.
+   L'image affichable est donc <image>/high.webp, dont l'existence est vérifiée en la chargeant vraiment. */
+const API='https://api.tcgdex.net/v2/fr';
+const ENERGY_COUNT=6,POKE_SLOTS=24,DECK_SIZE=30,PER_PAGE=9,MAX_TRIES=10;
+const ALLOWED_SUFFIX=new Set(['ex','v','vmax','vstar','gx','break','prime','star','lv','x','legend','tera','de','d','du','des','la','team','rocket','alola','galar','hisui','paldea','obscur','radieux','brillant']);
+const DECK_DEFS=[
+ {key:'soleil',emoji:'☀️',title:'Deck Soleil',desc:'Feu, Plante, Électrique : Pikachu, Dracaufeu, Évoli, Ronflex…',energy:['feu','feu','plante','plante','electrique','electrique'],on:true,names:['Pikachu','Salamèche','Reptincel','Dracaufeu','Bulbizarre','Herbizarre','Florizarre','Raichu','Goupix','Feunard','Caninos','Arcanin','Ponyta','Galopa','Évoli','Pyroli','Voltali','Ronflex','Rondoudou','Miaouss','Mélofée','Magmar','Électhor','Sulfura']},
+ {key:'ocean',emoji:'🌊',title:'Deck Océan',desc:'Eau et Psy : Carapuce, Léviator, Mew, Draco…',energy:['eau','eau','eau','psy','psy','combat'],on:true,names:['Carapuce','Carabaffe','Tortank','Magicarpe','Léviator','Lokhlass','Psykokwak','Akwakwak','Aquali','Hypotrempe','Stari','Staross','Mew','Mewtwo','Métamorph','Abra','Kadabra','Alakazam','Onix','Leveinard','Minidraco','Draco','Dracolosse','Artikodin']},
+ {key:'foret',emoji:'🌲',title:'Deck Forêt',desc:'Plante, insectes et oiseaux : Papilusion, Nidoking, Roucarnage…',energy:['plante','plante','plante','plante','psy','psy'],names:['Chenipan','Chrysacier','Papilusion','Aspicot','Coconfort','Dardargnan','Roucool','Roucoups','Roucarnage','Rattata','Rattatac','Piafabec','Rapasdepic','Nidoran♀','Nidorina','Nidoqueen','Nidoran♂','Nidorino','Nidoking','Mystherbe','Ortide','Rafflesia','Paras','Parasect']},
+ {key:'montagne',emoji:'⛰️',title:'Deck Montagne',desc:'Combat et roche : Mackogneur, Grolem, Tauros, fossiles…',energy:['combat','combat','combat','combat','combat','psy'],names:['Machoc','Machopeur','Mackogneur','Racaillou','Gravalanch','Grolem','Sabelette','Sablaireau','Taupiqueur','Triopikeur','Kicklee','Tygnon','Rhinocorne','Rhinoféros','Osselait','Ossatueur','Kabuto','Kabutops','Amonita','Amonistar','Ptéra','Tauros','Kangourex','Excelangue']},
+ {key:'nuit',emoji:'🌙',title:'Deck Nuit',desc:'Spectres, poison et électrique : Ectoplasma, Magnéton, Porygon…',energy:['psy','psy','psy','electrique','electrique','combat'],names:['Fantominus','Spectrum','Ectoplasma','Soporifik','Hypnomade','Smogo','Smogogo','Tadmorv','Grotadmorv','Abo','Arbok','Nosferapti','Nosferalto','Mimitoss','Aéromite','Magnéti','Magnéton','Voltorbe','Électrode','Porygon','Élektek','Insécateur','Scarabrute','Lippoutou']},
+ {key:'johto1',emoji:'🌱',title:'Deck Johto 1 – Partenaires',desc:'Johto : Germignon, Héricendre, Kaiminus, Pichu, Togepi, Mentali, Noctali…',energy:['plante','feu','eau','psy','psy','electrique'],names:['Germignon','Macronium','Méganium','Héricendre','Feurisson','Typhlosion','Kaiminus','Crocrodil','Aligatueur','Pichu','Mélo','Toudoudou','Togepi','Togetic','Mentali','Noctali','Marill','Azumarill','Wattouat','Lainergie','Pharamp','Natu','Xatu','Joliflor']},
+ {key:'johto2',emoji:'✨',title:'Deck Johto 2 – Légendes',desc:'Johto : Raikou, Entei, Suicune, Lugia, Ho-Oh, Celebi, Tyranocif…',energy:['feu','eau','electrique','psy','combat','combat'],names:['Raikou','Entei','Suicune','Lugia','Ho-Oh','Celebi','Embrylex','Ymphect','Tyranocif','Hyporoi','Démolosse','Malosse','Cizayox','Scarhino','Steelix','Airmure','Magby','Élekid','Phanpy','Donphan','Porygon2','Cerfrousse','Écrémeuh','Leuphorie']},
+ {key:'johto3',emoji:'🍃',title:'Deck Johto 3 – Nature',desc:'Johto : Fouinar, Noarfang, Coxyclaque, Cotovol, Héliatronc…',energy:['plante','plante','plante','plante','psy','combat'],names:['Fouinette','Fouinar','Hoothoot','Noarfang','Coxy','Coxyclaque','Mimigal','Migalos','Nostenfer','Granivol','Floravol','Cotovol','Tournegrin','Héliatronc','Yanma','Capumain','Simularbre','Pomdepik','Foretress','Insolourdo','Scorplane','Caratroc','Cornèbre','Girafarig']},
+ {key:'johto4',emoji:'🧭',title:'Deck Johto 4 – Aventure',desc:'Johto : Lanturn, Tarpaud, Ursaring, Démanta, Cadoizo…',energy:['eau','eau','eau','psy','combat','combat'],names:['Loupio','Lanturn','Tarpaud','Axoloto','Maraiste','Roigada','Feuforêve','Qulbutoké','Qwilfish','Farfuret','Teddiursa','Ursaring','Limagma','Volcaropod','Marcacrin','Cochignon','Corayon','Rémoraid','Octillery','Cadoizo','Démanta','Lippouti','Kapoera','Debugant']},
+ {key:'ex',emoji:'⭐',title:'Deck Pokémon-ex',desc:'Uniquement des cartes ex (beaucoup de PV) : Dracaufeu, Mewtwo, Lugia…',ex:true,energy:['feu','eau','electrique','psy','plante','combat'],names:['Dracaufeu','Pikachu','Mewtwo','Mew','Évoli','Ronflex','Alakazam','Florizarre','Tortank','Léviator','Arcanin','Lokhlass','Dracolosse','Électhor','Artikodin','Sulfura','Typhlosion','Méganium','Aligatueur','Lugia','Ho-Oh','Tyranocif','Celebi','Raikou']}
+];
+/* Chaque deck = 1 ou 2 « parties » de 24 Pokémon + 6 Énergies. Petit deck = 1 partie (30 cartes), grand deck = 2 thèmes réunis (60 cartes). */
+const SMALL_DEFS=DECK_DEFS.map(d=>({key:d.key,emoji:d.emoji,title:d.title,desc:d.desc,size:30,group:'t30',on:!!d.on,parts:[{names:d.names,ex:!!d.ex,energy:d.energy}]}));
+const BIG_PAIRS=[['soleil','ocean','Grand Deck Kanto – Feu & Eau','🔥','Soleil + Océan : 48 Pokémon (+ 12 Énergies à part)',true],['foret','montagne','Grand Deck Kanto – Nature & Roc','🌄','Forêt + Montagne : 48 Pokémon (+ 12 Énergies à part)'],['nuit','ex','Grand Deck Nuit & ex','🌌','Nuit + Pokémon-ex : 48 Pokémon (+ 12 Énergies à part)'],['johto1','johto3','Grand Deck Johto – Partenaires & Nature','🌿','Johto 1 + Johto 3 : 48 Pokémon (+ 12 Énergies à part)'],['johto2','johto4','Grand Deck Johto – Légendes & Aventure','🏆','Johto 2 + Johto 4 : 48 Pokémon (+ 12 Énergies à part)']];
+const BIG_DEFS=BIG_PAIRS.map(([a,b,title,emoji,desc,on])=>({key:'g-'+a+'-'+b,emoji,title,desc,size:60,group:'t60',on:!!on,parts:[a,b].map(k=>SMALL_DEFS.find(d=>d.key===k).parts[0])}));
+/* ===== Decks équilibrés par niveau : mono-type + Pokémon incolores (jouables avec n'importe quelle Énergie) =====
+   Niveau 1 « Enfant »  : 24 Pokémon de base, sans évolution + RÉSERVE de 12 Énergies à côté du deck.
+   Niveau 2 « Débutant » : 30 cartes = 20 Pokémon (lignes d'évolution complètes) + 10 Énergies mélangées dans le deck.
+   Niveau 3 « Confirmé » : 60 cartes = 40 Pokémon + 20 Énergies mélangées dans le deck.
+   Le type de chaque carte est contrôlé à partir de la fiche TCGdex quand elle l'indique (cartes d'un autre type refusées). */
+const TYPE_DATA={
+ feu:{label:'Feu',emoji:'🔥',
+  basics:['Salamèche','Goupix','Caninos','Ponyta','Magmar','Sulfura','Héricendre','Limagma','Malosse','Magby','Entei','Ho-Oh'],
+  lines:['Salamèche','Reptincel','Dracaufeu','Goupix','Feunard','Caninos','Arcanin','Ponyta','Galopa','Magmar','Héricendre','Feurisson','Typhlosion','Limagma','Volcaropod','Malosse','Démolosse','Magby','Sulfura','Entei'],
+  more:['Pyroli','Ho-Oh']},
+ eau:{label:'Eau',emoji:'💧',
+  basics:['Carapuce','Psykokwak','Ptitard','Tentacool','Ramoloss','Otaria','Kokiyas','Krabby','Hypotrempe','Poissirène','Stari','Magicarpe','Lokhlass','Kaiminus','Marill','Suicune'],
+  lines:['Carapuce','Carabaffe','Tortank','Psykokwak','Akwakwak','Ptitard','Têtarte','Tartard','Hypotrempe','Hypocéan','Hyporoi','Magicarpe','Léviator','Kaiminus','Crocrodil','Aligatueur','Stari','Staross','Lokhlass','Suicune'],
+  more:['Aquali','Tentacool','Tentacruel','Ramoloss','Flagadoss','Otaria','Lamantine','Kokiyas','Crustabri','Krabby','Krabboss','Poissirène','Poissoroy','Loupio','Lanturn','Marill','Azumarill','Tarpaud','Axoloto','Maraiste','Corayon','Rémoraid','Octillery','Démanta']},
+ plante:{label:'Plante',emoji:'🌿',
+  basics:['Bulbizarre','Chenipan','Aspicot','Mystherbe','Paras','Mimitoss','Chétiflor','Noeunoeuf','Saquedeneu','Insécateur','Scarabrute','Germignon','Coxy','Mimigal','Granivol','Tournegrin'],
+  lines:['Bulbizarre','Herbizarre','Florizarre','Mystherbe','Ortide','Rafflesia','Chétiflor','Boustiflor','Empiflor','Germignon','Macronium','Méganium','Granivol','Floravol','Cotovol','Chenipan','Chrysacier','Papilusion','Insécateur','Celebi'],
+  more:['Aspicot','Coconfort','Dardargnan','Paras','Parasect','Mimitoss','Aéromite','Noeunoeuf','Noadkoko','Saquedeneu','Scarabrute','Coxy','Coxyclaque','Mimigal','Migalos','Tournegrin','Héliatronc','Pomdepik','Joliflor']},
+ electrique:{label:'Électrique',emoji:'⚡',
+  basics:['Pikachu','Pichu','Magnéti','Voltorbe','Électhor','Wattouat','Élekid','Raikou','Loupio'],
+  lines:['Pichu','Pikachu','Raichu','Magnéti','Magnéton','Voltorbe','Électrode','Élekid','Élektek','Wattouat','Lainergie','Pharamp','Électhor','Raikou','Voltali','Évoli','Loupio','Lanturn','Miaouss','Persian'],
+  more:[]},
+ psy:{label:'Psy',emoji:'🔮',
+  basics:['Abra','Soporifik','M. Mime','Mewtwo','Mew','Fantominus','Natu','Zarbi','Qulbutoké','Feuforêve','Lippouti','Mélofée','Mélo','Togepi','Lugia','Celebi'],
+  lines:['Abra','Kadabra','Alakazam','Soporifik','Hypnomade','Fantominus','Spectrum','Ectoplasma','Mewtwo','Mew','Natu','Xatu','Mentali','Lippouti','Lippoutou','Mélofée','Mélodelfe','M. Mime','Qulbutoké','Lugia'],
+  more:['Mélo','Feuforêve','Zarbi','Girafarig','Togepi','Togetic']},
+ combat:{label:'Combat',emoji:'👊',
+  basics:['Machoc','Racaillou','Onix','Rhinocorne','Osselait','Kicklee','Tygnon','Sabelette','Taupiqueur','Kabuto','Amonita','Ptéra','Embrylex','Debugant','Phanpy','Scarhino'],
+  lines:['Machoc','Machopeur','Mackogneur','Racaillou','Gravalanch','Grolem','Rhinocorne','Rhinoféros','Osselait','Ossatueur','Férosinge','Colossinge','Embrylex','Ymphect','Tyranocif','Debugant','Kicklee','Tygnon','Kapoera','Onix'],
+  more:['Sabelette','Sablaireau','Taupiqueur','Triopikeur','Kabuto','Kabutops','Amonita','Amonistar','Ptéra','Phanpy','Donphan','Scarhino','Simularbre','Steelix','Caratroc']}
+};
+/* Pokémon incolores de base (compléments de niveau 1) puis lignes incolores (compléments des niveaux 2-3) */
+const C_KID=['Évoli','Miaouss','Rattata','Roucool','Rondoudou','Doduo','Canarticho','Tauros','Ronflex','Teddiursa','Écrémeuh','Hoothoot','Kangourex','Excelangue','Porygon','Leveinard','Capumain','Insolourdo','Fouinette','Cerfrousse','Queulorior','Snubbull','Piafabec','Girafarig'];
+const C_TOP=['Évoli','Miaouss','Persian','Rattata','Rattatac','Roucool','Roucoups','Roucarnage','Rondoudou','Grodoudou','Doduo','Dodrio','Ronflex','Tauros','Teddiursa','Ursaring','Hoothoot','Noarfang','Écrémeuh','Piafabec','Rapasdepic','Fouinette','Fouinar','Snubbull','Granbull','Excelangue','Kangourex','Porygon','Porygon2','Leveinard','Capumain','Insolourdo','Cerfrousse','Queulorior','Canarticho','Girafarig'];
+const LEVELS={
+ k:{short:'Enfant',tag:'Niveau 1',poke:24,energy:12,reserve:true,desc:t=>`24 Pokémon de base ${t} et incolores, sans évolution · réserve de 12 Énergies à côté`},
+ m:{short:'Débutant',tag:'Niveau 2',poke:20,energy:10,desc:t=>`20 Pokémon ${t} (lignes d'évolution complètes) + 10 Énergies dans le deck`},
+ c:{short:'Confirmé',tag:'Niveau 3',poke:40,energy:20,desc:t=>`40 Pokémon ${t} et incolores + 20 Énergies dans le deck (60 cartes)`}
+};
+function typedDeck(type,lv){
+ const T=TYPE_DATA[type],L=LEVELS[lv],nm=[];
+ const add=n=>{if(!nm.includes(n))nm.push(n)};
+ if(lv==='k'){T.basics.forEach(add);for(const n of C_KID){if(nm.length>=L.poke)break;add(n)}}
+ else if(lv==='m'){T.lines.forEach(add)}
+ else{T.lines.forEach(add);for(const n of [...T.more,...C_TOP]){if(nm.length>=L.poke)break;add(n)}}
+ const pool=[...new Set([...T.basics,...T.lines,...T.more,...C_KID,...C_TOP])].filter(n=>!nm.includes(n));
+ return {key:lv+'-'+type,group:lv,emoji:T.emoji,title:`Deck ${T.label} — ${L.short}`,desc:L.desc(T.label.toLowerCase()),size:lv==='k'?L.poke:L.poke+L.energy,reserve:!!L.reserve,on:lv==='k'&&(type==='feu'||type==='eau'),
+  parts:[{names:nm,ex:false,type,energy:Array(L.energy).fill(type),pool}]};
+}
+const TYPED_DEFS=['k','m','c'].flatMap(lv=>Object.keys(TYPE_DATA).map(t=>typedDeck(t,lv)));
+const ALL_DEFS=[...TYPED_DEFS,...SMALL_DEFS,...BIG_DEFS];
+function pkey(pid,pt){return pid+(pt&&pt.ex?'x':'')+(pt&&pt.type?'@'+pt.type:'')}
+const PRIMARY=new Set(DECK_DEFS.filter(d=>!d.ex).flatMap(d=>d.names));
+const RESERVE_TOP=['M. Mime','Grodoudou','Dodrio','Doduo','Canarticho','Flagadoss','Ramoloss','Krabby','Krabboss','Tentacool','Tentacruel','Otaria','Lamantine','Poissoroy','Poissirène','Kokiyas','Crustabri','Ptitard','Têtarte','Tartard','Noeunoeuf','Noadkoko','Chétiflor','Boustiflor','Empiflor','Mélodelfe','Saquedeneu','Snubbull','Granbull','Queulorior','Zarbi'];
+/* Remplaçants : uniquement des Pokémon absents de toutes les listes de decks classiques (jamais de doublon entre ces decks). */
+const RESERVE=[...new Set([...RESERVE_TOP,...names])].filter(n=>!PRIMARY.has(n));
+const ENERGY_TYPES={feu:['feu'],eau:['eau'],plante:['plante'],electrique:['electrique','foudre'],psy:['psy','psychique'],combat:['combat','lutte'],obscurite:['obscurite','tenebres'],metal:['metal','acier']};
+const ENERGY_LABEL={feu:'Feu',eau:'Eau',plante:'Plante',electrique:'Électrique',psy:'Psy',combat:'Combat',obscurite:'Obscurité',metal:'Métal'};
+const ENERGY_ORDER=['feu','eau','plante','electrique','psy','combat','obscurite','metal'];
+let cardIndex=null,energyIndex=new Map();
+const energyOk=new Map(),energyBad=new Set();
+/* Énergie de base uniquement : « Énergie <type> » (éventuellement « de base »). Les Énergies spéciales sont exclues. */
+function energyTypeOf(w){
+ if(!w.startsWith('energie '))return null;
+ const typ=w.slice(8).split(' ').filter(t=>t&&!['de','base','basique'].includes(t));
+ if(typ.length!==1)return null;
+ for(const k of Object.keys(ENERGY_TYPES))if(ENERGY_TYPES[k].includes(typ[0]))return k;
+ return null;
+}
+function normW(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9♀♂]+/g,' ').trim()}
+function idOf(n){return names.indexOf(n)+1}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function cardImage(c){
+ if(!c||typeof c.image!=='string'||!/^https?:\/\//.test(c.image))return '';
+ if(/\.(webp|png|jpg|jpeg)$/i.test(c.image))return c.image;
+ return c.image.replace(/\/(high|low)$/,'')+'/high.webp';
+}
+async function getJSON(url,timeout=15000){
+ const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),timeout);
+ try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
+ finally{clearTimeout(t)}
+}
+/* Charge réellement l'image : succès seulement si elle se décode avec des dimensions de carte plausibles. */
+const imgCache=new Map();
+function loadImage(url,timeout=8000){
+ if(!url)return Promise.resolve(false);
+ if(imgCache.has(url))return imgCache.get(url);
+ const pr=new Promise(res=>{
+  const im=new Image();let done=false;
+  const fin=ok=>{if(done)return;done=true;clearTimeout(t);res(ok)};
+  const t=setTimeout(()=>fin(false),timeout);
+  im.onload=()=>{const w=im.naturalWidth,h=im.naturalHeight;fin(w>0&&h>0&&w/h>0.6&&w/h<0.85)};
+  im.onerror=()=>fin(false);
+  im.src=url;
+ });
+ pr.then(ok=>{if(!ok)imgCache.delete(url)});
+ imgCache.set(url,pr);return pr;
+}
+/* Association stricte nom de carte → Pokémon : le nom du Pokémon doit être le début du nom de la carte (mots entiers),
+   et le reste ne peut être qu'un suffixe connu (EX, V, VMAX, forme…). « Mew » ne correspond donc pas à « Mewtwo »,
+   et « Pikachu & Zekrom GX » (deux Pokémon) est refusé. */
+function buildIndex(cards){
+ const idx=new Map(),pn=names.map(normW);energyIndex=new Map();
+ for(const c of cards){
+  if(!c||typeof c.id!=='string'||!c.id||typeof c.name!=='string')continue;
+  const et=energyTypeOf(normW(c.name));
+  if(et){if(!energyIndex.has(et))energyIndex.set(et,[]);energyIndex.get(et).push(c);continue}
+  const w=normW(c.name)+' ';
+  for(let i=0;i<pn.length;i++){
+   if(!w.startsWith(pn[i]+' '))continue;
+   const toks=w.slice(pn[i].length).trim().split(' ').filter(Boolean);
+   if(!toks.every(t=>ALLOWED_SUFFIX.has(t)))continue;
+   if(!idx.has(i+1))idx.set(i+1,[]);
+   idx.get(i+1).push({card:c,exact:toks.length===0,ex:toks.includes('ex')});
+  }
+ }
+ for(const l of energyIndex.values())l.sort((a,b)=>(cardImage(b)?1:0)-(cardImage(a)?1:0));
+ for(const l of idx.values())l.sort((a,b)=>(b.exact-a.exact)||((cardImage(b.card)?1:0)-(cardImage(a.card)?1:0)));
+ return idx;
+}
+async function loadCardCatalog(){
+ if(cardIndex)return allCards;
+ $('deckstatus').textContent='Chargement du catalogue français de cartes…';
+ try{
+  const data=await getJSON(API+'/cards',90000);
+  if(!Array.isArray(data)||!data.length)throw new Error('format');
+  allCards=data;cardIndex=buildIndex(data);return allCards;
+ }catch(e){
+  throw new Error(e.message==='format'?'Réponse inattendue du catalogue TCGdex (liste de cartes absente ou vide).':'Le catalogue TCGdex ne répond pas. Vérifie Internet ou réessaie plus tard.');
+ }
+}
+function cardsFor(p){return (cardIndex.get(p.id)||[]).map(x=>x.card).slice(0,40)}
+async function showCards(p){
+ $('modal').classList.add('open');$('modalTitle').textContent=`#${p.id} ${p.name}`;$('modalSub').textContent='Recherche de cartes originales françaises…';$('modalCards').innerHTML='';
+ try{await loadCardCatalog();const cs=cardsFor(p);$('modalSub').textContent=`${cs.length} carte(s) trouvée(s) dans le catalogue français.`;renderCardResults(cs,p.name)}
+ catch(e){$('modalSub').textContent=e.message}
+}
+function renderCardResults(cs){
+ $('modalCards').innerHTML=cs.map(c=>`<div class="cardresult">${cardImage(c)?`<img class="zoomable" loading="lazy" src="${esc(cardImage(c))}" alt="${esc(c.name)}">`:'<p>Image non disponible</p>'}<strong>${esc(c.name)}</strong><div class="muted">${esc(c.set?.name||'')}</div></div>`).join('')||'<p>Aucune carte trouvée dans le catalogue français pour ce Pokémon.</p>';
+ $('modalCards').querySelectorAll('img').forEach(im=>im.addEventListener('error',()=>{const p=document.createElement('p');p.textContent='Image non disponible';im.replaceWith(p)}));
+}
+/* Validation complète d'une carte candidate : image réellement chargée + fiche cohérente (catégorie Pokémon, n° Pokédex). */
+const TYPE_SYN={feu:['feu','fire'],eau:['eau','water'],plante:['plante','grass'],electrique:['electrique','foudre','lightning'],psy:['psy','psychique','psychic'],combat:['combat','lutte','fighting'],obscurite:['obscurite','tenebres','darkness'],metal:['metal','acier'],dragon:['dragon'],incolore:['incolore','colorless'],fee:['fee','fairy']};
+function typeKey(x){const w=normW(x);for(const k of Object.keys(TYPE_SYN))if(TYPE_SYN[k].includes(w))return k;return null}
+/* Refus seulement si les types de la carte sont reconnus ET hors de la liste autorisée ; format inconnu ou absent : accepté. */
+function typeOk(d,allowed){
+ if(!allowed||!Array.isArray(d.types)||!d.types.length)return true;
+ const ks=d.types.map(typeKey).filter(Boolean);
+ return !ks.length||ks.every(k=>allowed.includes(k));
+}
+async function validateCard(c,p,allowed){
+ const url=cardImage(c);
+ if(!url||!(await loadImage(url)))return null;
+ let dexChecked=false;
+ try{
+  const d=await getJSON(API+'/cards/'+encodeURIComponent(c.id),10000);
+  if(!d||typeof d!=='object'||d.id!==c.id)return null;
+  if(d.category&&normW(d.category)!=='pokemon')return null;
+  if(Array.isArray(d.dexId)&&d.dexId.length){if(!d.dexId.map(Number).includes(p.id))return null;dexChecked=true}
+  if(!typeOk(d,allowed))return null;
+ }catch(e){/* fiche indisponible : on garde la correspondance stricte par le nom */}
+ return {id:c.id,name:c.name,image:url,set:c.set?.name||'',pokemonId:p.id,dexChecked};
+}
+const resolved=new Map();
+/* Clé de cache : n° Pokédex (+ « x » pour les decks de cartes ex, + « @type » pour les decks mono-type). */
+async function resolvePokemon(pid,pt){
+ const onlyEx=!!(pt&&pt.ex),allowed=pt&&pt.type?[pt.type,'incolore']:null,key=pkey(pid,pt);
+ if(resolved.has(key))return resolved.get(key);
+ const p={id:pid,name:names[pid-1]},list=cardIndex.get(pid)||[],want=picks.pokemon[key];
+ const keep=(v,x)=>{v.ex=!!x.ex;v.onlyEx=onlyEx;v.allowed=allowed;v.key=key;resolved.set(key,v);return v};
+ if(want){
+  const x=list.find(y=>y.card.id===want&&cardImage(y.card)&&(!onlyEx||y.ex));
+  if(x){const v=await validateCard(x.card,p,allowed);if(v)return keep(v,x)}
+ }
+ let n=0;
+ for(const x of list){
+  if(!cardImage(x.card)||(onlyEx&&!x.ex))continue;
+  if(n++>=MAX_TRIES)break;
+  const v=await validateCard(x.card,p,allowed);
+  if(v)return keep(v,x);
+ }
+ return null;
+}
+function exPids(){return [...cardIndex.entries()].filter(([,l])=>l.some(x=>x.ex&&cardImage(x.card))).map(([pid])=>pid).sort((a,b)=>a-b)}
+async function runPool(items,worker,limit=6,onProgress){
+ let i=0,done=0;
+ await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{
+  while(i<items.length){const k=i++;await worker(items[k],k);done++;if(onProgress)onProgress(done,items.length)}
+ }));
+}
+async function validateEnergy(c,type){
+ const url=cardImage(c);
+ if(!url||!(await loadImage(url)))return null;
+ try{
+  const d=await getJSON(API+'/cards/'+encodeURIComponent(c.id),10000);
+  if(!d||typeof d!=='object'||d.id!==c.id)return null;
+  if(d.category&&normW(d.category)!=='energie')return null;
+  if(d.energyType&&/spec/.test(normW(d.energyType)))return null;
+ }catch(e){/* fiche indisponible : on garde le contrôle strict du nom */}
+ return {id:c.id,name:c.name,image:url,set:c.set?.name||'',energyType:type};
+}
+async function nextEnergy(type,used){
+ let n=0;
+ for(const c of (energyIndex.get(type)||[])){
+  if(used.has(c.id)||energyBad.has(c.id)||!cardImage(c))continue;
+  if(energyOk.has(c.id))return energyOk.get(c.id);
+  if(n++>=MAX_TRIES)break;
+  const v=await validateEnergy(c,type);
+  if(v){energyOk.set(c.id,v);return v}
+  energyBad.add(c.id);
+ }
+ return null;
+}
+/* ===== Choix mémorisés (variante de carte préférée), facultatif : sans stockage tout fonctionne quand même ===== */
+let picks={pokemon:{},energy:{}};
+try{const s=localStorage.getItem('atelierPokemonPicks');if(s){const o=JSON.parse(s);if(o&&typeof o==='object')picks={pokemon:o.pokemon||{},energy:o.energy||{}}}}catch(e){}
+function savePicks(){try{localStorage.setItem('atelierPokemonPicks',JSON.stringify(picks))}catch(e){}}
+
+function dropCard(d,id){
+ const hit=d.slots.find(s=>s.id===id);
+ if(hit){imgCache.delete(hit.image);if(hit.key)resolved.delete(hit.key);else if(hit.pokemonId){resolved.delete(hit.pokemonId);resolved.delete(hit.pokemonId+'x')}}
+ d.slots=d.slots.filter(s=>s.id!==id);
+}
+function isReady(d){return !!d&&d.slots.length===d.pokeTarget}
+function deckCount(d){return d?d.slots.length:0}
+function planCounts(plan){const c={};plan.forEach(t=>{c[t]=(c[t]||0)+1});return c}
+function planText(c){return ENERGY_ORDER.filter(t=>c[t]).map(t=>`${ENERGY_LABEL[t]} ×${c[t]}`).join(' · ')}
+
+async function buildDecks(){
+ const picked=[...document.querySelectorAll('#deckPick input:checked')].map(x=>x.value);
+ const sel=ALL_DEFS.filter(d=>picked.includes(d.key));
+ if(!sel.length){$('deckstatus').textContent='Choisis au moins un deck à préparer.';return}
+ const btn=$('buildDecks');btn.disabled=true;$('recap').style.display='none';
+ try{
+  await loadCardCatalog();
+  const used=new Set(),failed=new Set(),out=sel.map(def=>{const plan=def.parts.flatMap(p=>p.energy);return {title:def.title,emoji:def.emoji,size:def.size,pokeTarget:def.parts.reduce((s,p)=>s+p.names.length,0),reserve:!!def.reserve,energyPlan:planCounts(plan),energyTotal:plan.length,slots:[],replaced:[],species:new Set(),counts:def.parts.map(()=>0)}});
+  const jobs=[];
+  sel.forEach((def,di)=>def.parts.forEach((pt,pi)=>pt.names.forEach(n=>{const pid=idOf(n);if(pid)jobs.push({di,pi,pid,n,pt,key:pkey(pid,pt)})})));
+  await runPool(jobs,async j=>{j.res=await resolvePokemon(j.pid,j.pt)},6,(d,t)=>{$('deckstatus').textContent=`Vérification des images : ${d}/${t} Pokémon…`});
+  for(const j of jobs){
+   const dk=out[j.di];
+   if(j.res&&!used.has(j.key)&&!dk.species.has(j.pid)){dk.slots.push({...j.res,qty:1});dk.counts[j.pi]++;dk.species.add(j.pid);used.add(j.key)}else dk.replaced.push(j.n);
+  }
+  for(let di=0;di<out.length;di++){
+   const dk=out[di],def=sel[di];
+   for(let pi=0;pi<def.parts.length;pi++){
+    const pt=def.parts[pi],tgt=pt.names.length;
+    while(dk.counts[pi]<tgt){
+     const base=pt.pool?pt.pool.map(idOf):(pt.ex?exPids():RESERVE.map(idOf));
+     const pool=base.filter(pid=>pid&&!used.has(pkey(pid,pt))&&!failed.has(pkey(pid,pt))&&!dk.species.has(pid)).slice(0,(tgt-dk.counts[pi])*2);
+     if(!pool.length)break;
+     await runPool(pool,async pid=>{if(!(await resolvePokemon(pid,pt)))failed.add(pkey(pid,pt))},6,(d,t)=>{$('deckstatus').textContent=`Recherche de remplaçants : ${d}/${t}…`});
+     for(const pid of pool){const k=pkey(pid,pt);if(dk.counts[pi]>=tgt)break;const r=resolved.get(k);if(r&&!used.has(k)&&!dk.species.has(pid)){dk.slots.push({...r,qty:1});dk.counts[pi]++;dk.species.add(pid);used.add(k)}}
+    }
+   }
+  }
+  out.forEach(d=>{d.energies=ENERGY_ORDER.filter(t=>d.energyPlan[t]).map(t=>({type:t,qty:d.energyPlan[t]}))});
+  decks=out;renderDecks();
+  const msg=decks.map(d=>`${d.title} : ${deckCount(d)}/${d.pokeTarget}`).join(' — ');
+  $('deckstatus').textContent=decks.every(isReady)?`${msg} cartes Pokémon prêtes. Tous les decks sont prêts à imprimer.`:`${msg} cartes Pokémon prêtes. Deck(s) incomplet(s) : impression désactivée pour ce(s) deck(s).`;
+  if(!energiesLoaded)await loadEnergies();
+ }catch(e){$('deckstatus').textContent=e.message}
+ finally{btn.disabled=false}
+}
+function renderPick(){
+ const g=document.querySelector('#sizePick input:checked')?.value||'k';
+ $('deckPick').innerHTML=ALL_DEFS.filter(d=>d.group===g).map(d=>`<label class="pick"><input type="checkbox" value="${d.key}"${d.on?' checked':''}><span><b>${d.emoji} ${esc(d.title)}</b><br><span class="muted">${esc(d.desc)}</span></span></label>`).join('');
+}
+const LEVEL_RADIOS=[['k','Niveau 1 · Enfant (dès 5 ans)','24 Pokémon de base, mono-type, sans évolution + réserve d\'Énergies · règle « Réserve d\'Énergie »',true],['m','Niveau 2 · Débutant','30 cartes mono-type : 20 Pokémon avec évolutions + 10 Énergies'],['c','Niveau 3 · Confirmé','60 cartes mono-type : 40 Pokémon + 20 Énergies · règles avancées'],['t30','Découverte · petits decks thématiques','30 cartes variées (24 Pokémon + 6 Énergies) · non équilibrés'],['t60','Découverte · grands decks thématiques','60 cartes (2 thèmes) · non équilibrés']];
+$('sizePick').innerHTML=LEVEL_RADIOS.map(([v,t,d,on])=>`<label class="pick"><input type="radio" name="decksize" value="${v}"${on?' checked':''}><span><b>${t}</b><br><span class="muted">${d}</span></span></label>`).join('');
+$('sizePick').onchange=renderPick;
+renderPick();
+$('buildDecks').onclick=buildDecks;
+function updateButtons(){
+ const all=decks.length>0&&decks.every(isReady);
+ $('printDecks').disabled=!all;
+ $('printDecks').textContent=decks.length>1?`Imprimer les ${decks.length} decks (A4)`:'Imprimer le deck (A4)';
+}
+function clampQ(v){return Math.max(0,Math.min(99,Math.floor(Number(v))||0))}
+function deckPokeQty(d){return d.slots.reduce((s,c)=>s+(c.qty||0),0)}
+function deckPrintCards(d){
+ const out=[];
+ d.slots.forEach(c=>{for(let k=0;k<(c.qty||0);k++)out.push(c)});
+ (d.energies||[]).forEach(e=>{const st=energyState[e.type];if(st&&st.card)for(let k=0;k<e.qty;k++)out.push({...st.card,energyType:e.type})});
+ return out;
+}
+function deckMissingEnergy(d){return (d.energies||[]).filter(e=>e.qty>0&&!(energyState[e.type]&&energyState[e.type].card))}
+function qtyCtl(kind,key,val,label){
+ return `<div class="qty"><button class="btn tiny no-print" data-${kind}="${key}|-1" aria-label="Moins ${esc(label)}">−</button><input type="number" min="0" max="99" value="${val}" data-${kind}in="${key}" aria-label="Quantité ${esc(label)}"><button class="btn tiny no-print" data-${kind}="${key}|1" aria-label="Plus ${esc(label)}">+</button></div>`;
+}
+function renderDecks(){
+ $('decks').innerHTML=decks.map((d,i)=>{
+  const n=deckCount(d),ok=isReady(d),tot=deckPrintCards(d).length,pq=deckPokeQty(d),eq=tot-pq,miss=deckMissingEnergy(d);
+  const pokes=d.slots.map(s=>`<div class="mini"><img class="zoomable" src="${esc(s.image)}" alt="${esc(s.name)}" data-d="${i}" data-id="${esc(s.id)}"><b>${esc(s.name)}</b>${qtyCtl('dq',i+'|'+s.id,s.qty,s.name)}<button class="btn tiny no-print" data-variant="${i}|${esc(s.id)}">Variante</button><button class="btn tiny no-print" data-tosheet="${i}|${esc(s.id)}">+ planche</button></div>`).join('');
+  const ens=(d.energies||[]).map(e=>{const st=energyState[e.type],c=st&&st.card;return `<div class="mini emini">${c?`<img class="zoomable" src="${esc(c.image)}" alt="${esc(c.name)}">`:'<div class="muted noimg">Carte non chargée</div>'}<b>Énergie ${ENERGY_LABEL[e.type]}</b>${qtyCtl('eq',i+'|'+e.type,e.qty,'Énergie '+ENERGY_LABEL[e.type])}<button class="btn tiny no-print" data-eqvariant="${e.type}"${c?'':' disabled'}>Variante</button></div>`}).join('');
+  return `<div class="deck"><h3>${d.emoji||''} ${esc(d.title)} — ${d.reserve?d.pokeTarget+' cartes + réserve':d.size+' cartes'}</h3><p>${d.pokeTarget} cartes Pokémon, plus ${d.energyTotal} Énergies conseillées ${d.reserve?'(<b>réserve</b> à poser à côté du deck, pas dedans)':'(à mélanger dans le deck)'} : <b>${esc(planText(d.energyPlan))}</b>. Ajuste les quantités à imprimer avec − et +.</p><p><span class="counter ${ok?'ok':'ko'}">${n}/${d.pokeTarget} cartes Pokémon prêtes</span> <span class="counter ok">${tot} carte(s) à imprimer (${pq} Pokémon + ${eq} Énergies) · ${Math.ceil(tot/PER_PAGE)} page(s)</span></p><p><button class="btn primary no-print" data-print="${i}"${ok&&tot>0?'':' disabled'}>Imprimer ce deck</button></p>${ok?'':`<p class="warn">Deck incomplet : il manque ${d.pokeTarget-n} carte(s) Pokémon. Le catalogue n'a pas fourni assez de cartes françaises dont l'image a pu être vérifiée. L'impression de ce deck est désactivée.</p>`}${d.replaced.length?`<p class="muted">Pokémon prévus sans carte valide (remplacés si possible) : ${esc(d.replaced.join(', '))}</p>`:''}${miss.length?`<p class="muted">Énergie ${esc(miss.map(e=>ENERGY_LABEL[e.type]).join(', '))} : carte non chargée, donc non imprimée (voir « Cartes Énergie supplémentaires » plus bas).</p>`:''}<h4>Cartes Pokémon</h4><div class="card-list">${pokes}</div><h4>${d.reserve?'Réserve d\'Énergies':'Énergies du deck'}</h4><div class="card-list">${ens}</div></div>`;
+ }).join('');
+ const D=document;
+ D.querySelectorAll('#decks [data-dq]').forEach(b=>b.onclick=()=>{const [di,id,dl]=b.dataset.dq.split('|');const c=decks[+di]&&decks[+di].slots.find(s=>s.id===id);if(c){c.qty=clampQ(c.qty+(+dl));renderDecks()}});
+ D.querySelectorAll('#decks [data-dqin]').forEach(x=>x.onchange=()=>{const [di,id]=x.dataset.dqin.split('|');const c=decks[+di]&&decks[+di].slots.find(s=>s.id===id);if(c){c.qty=clampQ(x.value);renderDecks()}});
+ D.querySelectorAll('#decks [data-eq]').forEach(b=>b.onclick=()=>{const [di,ty,dl]=b.dataset.eq.split('|');const e=decks[+di]&&decks[+di].energies.find(x=>x.type===ty);if(e){e.qty=clampQ(e.qty+(+dl));renderDecks()}});
+ D.querySelectorAll('#decks [data-eqin]').forEach(x=>x.onchange=()=>{const [di,ty]=x.dataset.eqin.split('|');const e=decks[+di]&&decks[+di].energies.find(z=>z.type===ty);if(e){e.qty=clampQ(x.value);renderDecks()}});
+ D.querySelectorAll('#decks [data-eqvariant]').forEach(b=>b.onclick=()=>pickEnergyVariant(b.dataset.eqvariant));
+ D.querySelectorAll('#decks [data-print]').forEach(b=>b.onclick=()=>showRecap({decks:[+b.dataset.print]}));
+ D.querySelectorAll('#decks [data-tosheet]').forEach(b=>b.onclick=()=>{const [di,id]=b.dataset.tosheet.split('|');const c=decks[+di]&&decks[+di].slots.find(s=>s.id===id);if(c)addToSheet(c)});
+ D.querySelectorAll('#decks [data-variant]').forEach(b=>b.onclick=()=>{const [di,id]=b.dataset.variant.split('|');chooseVariant(+di,id)});
+ D.querySelectorAll('#decks img[data-d]').forEach(im=>im.addEventListener('error',()=>{
+  const d=decks[+im.dataset.d];if(!d)return;
+  if(!d.slots.some(s=>s.id===im.dataset.id))return;
+  dropCard(d,im.dataset.id);
+  renderDecks();$('recap').style.display='none';
+  $('deckstatus').textContent='Une image n\'a plus pu être chargée : le deck est incomplet. Relance « Charger les cartes… » pour le compléter.';
+ }));
+ updateButtons();
+}
+
+/* ===== Choix de la variante d'une carte (fenêtre commune) ===== */
+function openPicker(title,sub,cands,currentId,onPick,keepOpen){
+ $('modal').classList.add('open');$('modalTitle').textContent=title;$('modalSub').textContent=sub;
+ const box=$('modalCards');
+ box.innerHTML=cands.map((c,k)=>`<div class="cardresult"><img class="zoomable" loading="lazy" src="${esc(cardImage(c))}" alt="${esc(c.name)}"><strong>${esc(c.name)}</strong><div class="muted">${esc((c.set&&c.set.name)||c.id)}</div><button class="btn tiny${c.id===currentId?'':' primary'}" data-pick="${k}"${c.id===currentId?' disabled':''}>${c.id===currentId?'Carte actuelle':'Choisir cette carte'}</button></div>`).join('')||'<p>Aucune variante avec image dans le catalogue.</p>';
+ box.querySelectorAll('img').forEach(im=>im.addEventListener('error',()=>{const p=document.createElement('p');p.textContent='Image non disponible';im.replaceWith(p)}));
+ box.querySelectorAll('[data-pick]').forEach(b=>b.onclick=async()=>{
+  b.disabled=true;$('modalSub').textContent='Vérification de la carte choisie…';
+  const ok=await onPick(cands[+b.dataset.pick]);
+  if(ok&&keepOpen){$('modalSub').textContent='Carte ajoutée à la planche. Tu peux en ajouter d\'autres ou fermer la fenêtre.';b.disabled=false}
+  else if(ok)$('modal').classList.remove('open');
+  else{$('modalSub').textContent='Cette variante n\'a pas pu être validée (image ou fiche) : choisis-en une autre.';b.disabled=false}
+ });
+}
+function chooseVariant(di,id){
+ const d=decks[di];if(!d||!cardIndex)return;
+ const cur=d.slots.find(s=>s.id===id);if(!cur)return;
+ const pname=names[cur.pokemonId-1];
+ const cands=(cardIndex.get(cur.pokemonId)||[]).filter(x=>cardImage(x.card)&&(!cur.onlyEx||x.ex)).map(x=>x.card).slice(0,60);
+ openPicker(`Choisir la carte — ${pname}`,`${cands.length} variante(s) avec image dans le catalogue français${cur.onlyEx?' (cartes ex uniquement)':''}.`,cands,cur.id,async c=>{
+  const v=await validateCard(c,{id:cur.pokemonId,name:pname},cur.allowed);if(!v)return false;
+  v.onlyEx=!!cur.onlyEx;v.allowed=cur.allowed;v.key=cur.key||(cur.pokemonId+(cur.onlyEx?'x':''));v.ex=(cardIndex.get(cur.pokemonId)||[]).some(x=>x.card.id===c.id&&x.ex);
+  const j=d.slots.findIndex(s=>s.id===cur.id);if(j<0)return false;
+  d.slots[j]=Object.assign({},v,{qty:cur.qty===undefined?1:cur.qty});
+  const key=v.key;resolved.set(key,v);picks.pokemon[key]=v.id;savePicks();
+  renderDecks();return true;
+ });
+}
+
+/* ===== Cartes Énergie : à part, en quantité libre ===== */
+const energyState={};ENERGY_ORDER.forEach(t=>{energyState[t]={card:null,qty:0}});
+let energiesLoaded=false;
+function totalEnergies(){return ENERGY_ORDER.reduce((s,t)=>s+energyState[t].qty,0)}
+function energyCounts(){const c={};ENERGY_ORDER.forEach(t=>{if(energyState[t].qty)c[t]=energyState[t].qty});return c}
+function energyBlocked(){return ENERGY_ORDER.some(t=>energyState[t].qty>0&&!energyState[t].card)}
+async function loadEnergies(){
+ $('energystatus').textContent='Recherche des cartes Énergie (une carte vérifiée par type)…';
+ try{
+  await loadCardCatalog();energyBad.clear();
+  await runPool(ENERGY_ORDER,async t=>{
+   let c=null;const want=picks.energy[t];
+   if(want){const w=(energyIndex.get(t)||[]).find(x=>x.id===want);if(w&&cardImage(w))c=await validateEnergy(w,t)}
+   if(!c)c=await nextEnergy(t,new Set());
+   energyState[t].card=c;
+  },4);
+  energiesLoaded=true;
+  const miss=ENERGY_ORDER.filter(t=>!energyState[t].card).map(t=>ENERGY_LABEL[t]);
+  $('energystatus').textContent=miss.length?`Pas de carte valide trouvée pour : ${miss.join(', ')}. Les autres types sont utilisables.`:'Une carte Énergie vérifiée est prête pour chaque type. Choisis les quantités, ou ajoute celles conseillées pour tes decks.';
+ }catch(e){$('energystatus').textContent=e.message}
+ renderEnergies();if(decks.length)renderDecks();
+}
+function pickEnergyVariant(t){
+ const cands=(energyIndex.get(t)||[]).filter(c=>cardImage(c)).slice(0,60);
+ openPicker(`Choisir la carte — Énergie ${ENERGY_LABEL[t]}`,`${cands.length} variante(s) avec image dans le catalogue français.`,cands,energyState[t].card&&energyState[t].card.id,async c=>{
+  const v=await validateEnergy(c,t);if(!v)return false;
+  energyOk.set(v.id,v);energyState[t].card=v;picks.energy[t]=v.id;savePicks();renderEnergies();renderDecks();return true;
+ });
+}
+function renderEnergies(){
+ $('energygrid').innerHTML=ENERGY_ORDER.map(t=>{
+  const st=energyState[t];
+  return `<div class="eslot"><div><b>Énergie ${ENERGY_LABEL[t]}</b></div>${st.card?`<img class="zoomable" src="${esc(st.card.image)}" alt="${esc(st.card.name)}">`:'<p class="muted">Pas de carte chargée</p>'}<div class="qty"><button class="btn tiny" data-q="${t}|-1"${st.card?'':' disabled'}>−</button><input type="number" min="0" max="99" value="${st.qty}" data-qin="${t}" aria-label="Quantité Énergie ${ENERGY_LABEL[t]}"${st.card?'':' disabled'}><button class="btn tiny" data-q="${t}|1"${st.card?'':' disabled'}>+</button></div><button class="btn tiny" data-evariant="${t}"${st.card?'':' disabled'}>Variante</button> <button class="btn tiny" data-esheet="${t}"${st.card?'':' disabled'}>+ planche</button></div>`;
+ }).join('');
+ const setQty=(t,v)=>{energyState[t].qty=Math.max(0,Math.min(99,Math.floor(Number(v))||0));renderEnergies()};
+ $('energygrid').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const [t,dl]=b.dataset.q.split('|');setQty(t,energyState[t].qty+(+dl))});
+ $('energygrid').querySelectorAll('[data-qin]').forEach(i=>i.onchange=()=>setQty(i.dataset.qin,i.value));
+ $('energygrid').querySelectorAll('[data-esheet]').forEach(b=>b.onclick=()=>{const c=energyState[b.dataset.esheet].card;if(c)addToSheet(c)});
+ $('energygrid').querySelectorAll('[data-evariant]').forEach(b=>b.onclick=()=>pickEnergyVariant(b.dataset.evariant));
+ const tot=totalEnergies();
+ $('printEnergies').disabled=tot===0||energyBlocked();
+ $('printEnergies').textContent=tot?`Imprimer les Énergies (${tot} cartes)`:'Imprimer les Énergies';
+ $('energytotal').textContent=tot?`${tot} carte(s) Énergie à imprimer : ${planText(energyCounts())} — ${Math.ceil(tot/PER_PAGE)} page(s) A4.`:'Aucune Énergie sélectionnée pour l\'instant.';
+}
+$('loadEnergies').onclick=loadEnergies;
+$('zeroEnergies').onclick=()=>{ENERGY_ORDER.forEach(t=>{energyState[t].qty=0});renderEnergies()};
+renderEnergies();
+
+/* ===== Visionneuse : agrandir une carte (clic sur l'image), flèches et Échap ===== */
+let lbList=[],lbIdx=0;
+function lbPickBtn(im){const cr=im&&im.closest?im.closest('.cardresult'):null;return cr?cr.querySelector('[data-pick]'):null}
+function lbShow(msg){
+ const im=lbList[lbIdx];if(!im)return;
+ $('lbImg').src=im.getAttribute('src')||'';$('lbImg').alt=im.alt||'';
+ const cr=im.closest('.cardresult'),sub=cr&&cr.querySelector('.muted')?cr.querySelector('.muted').textContent:'';
+ $('lbCap').textContent=(msg?msg+' — ':'')+(im.alt||'')+(sub?' · '+sub:'')+' ('+(lbIdx+1)+'/'+lbList.length+')';
+ const pb=lbPickBtn(im);
+ if(pb){$('lbAction').style.display='inline-block';$('lbAction').disabled=pb.disabled;$('lbAction').textContent=pb.disabled?pb.textContent:'Choisir cette carte'}
+ else $('lbAction').style.display='none';
+}
+function lbClose(){$('lightbox').classList.remove('open')}
+document.addEventListener('click',e=>{
+ const im=e.target&&e.target.closest?e.target.closest('img.zoomable'):null;
+ if(!im)return;
+ const scope=im.closest('.card-list,#modalCards,#energygrid,#sheetgrid')||im.parentElement;
+ lbList=[...scope.querySelectorAll('img.zoomable')];lbIdx=Math.max(0,lbList.indexOf(im));
+ lbShow();$('lightbox').classList.add('open');
+});
+$('lbAction').onclick=async()=>{
+ const pb=lbPickBtn(lbList[lbIdx]);if(!pb||pb.disabled)return;
+ $('lbAction').disabled=true;
+ await pb.onclick();
+ if(!$('modal').classList.contains('open')){lbClose();return}
+ lbShow($('modalSub').textContent);
+};
+$('lbClose').onclick=lbClose;
+$('lbPrev').onclick=()=>{if(lbList.length){lbIdx=(lbIdx+lbList.length-1)%lbList.length;lbShow()}};
+$('lbNext').onclick=()=>{if(lbList.length){lbIdx=(lbIdx+1)%lbList.length;lbShow()}};
+$('lightbox').addEventListener('click',e=>{if(e.target===$('lightbox'))lbClose()});
+document.addEventListener('keydown',e=>{
+ if(!$('lightbox').classList.contains('open'))return;
+ if(e.key==='Escape')lbClose();else if(e.key==='ArrowLeft')$('lbPrev').click();else if(e.key==='ArrowRight')$('lbNext').click();else if(e.key==='Enter'&&$('lbAction').style.display!=='none'&&!$('lbAction').disabled)$('lbAction').click();
+});
+
+/* ===== Planche à la carte : cartes à l'unité, par pages de 9 ===== */
+let sheet=[];
+try{const s=JSON.parse(localStorage.getItem('atelierPokemonSheet')||'[]');if(Array.isArray(s))sheet=s.filter(c=>c&&typeof c.id==='string'&&typeof c.image==='string'&&/^https?:/.test(c.image)).map(c=>({id:c.id,name:String(c.name||''),image:c.image,set:String(c.set||''),qty:Math.max(1,Math.min(99,Math.floor(+c.qty)||1))}))}catch(e){}
+function saveSheet(){try{localStorage.setItem('atelierPokemonSheet',JSON.stringify(sheet))}catch(e){}}
+function sheetTotal(){return sheet.reduce((s,c)=>s+c.qty,0)}
+function sheetCards(){const out=[];sheet.forEach(c=>{for(let k=0;k<c.qty;k++)out.push({id:c.id,name:c.name,image:c.image})});return out}
+function addToSheet(card){
+ const hit=sheet.find(c=>c.id===card.id);
+ if(hit)hit.qty=Math.min(99,hit.qty+1);else sheet.push({id:card.id,name:card.name,image:card.image,set:(card.set&&card.set.name)||card.set||'',qty:1});
+ saveSheet();renderSheet();
+}
+function renderSheet(){
+ const tot=sheetTotal(),pages=Math.ceil(tot/PER_PAGE),free=pages*PER_PAGE-tot;
+ $('sheetgrid').innerHTML=sheet.map(c=>`<div class="eslot"><div><b>${esc(c.name)}</b></div><img class="zoomable" src="${esc(c.image)}" alt="${esc(c.name)}"><div class="qty"><button class="btn tiny" data-sq="${esc(c.id)}|-1">−</button><input type="number" min="1" max="99" value="${c.qty}" data-sqin="${esc(c.id)}" aria-label="Quantité ${esc(c.name)}"><button class="btn tiny" data-sq="${esc(c.id)}|1">+</button></div><button class="btn tiny" data-srem="${esc(c.id)}">Retirer</button></div>`).join('');
+ const setQ=(id,v)=>{const c=sheet.find(x=>x.id===id);if(!c)return;c.qty=Math.max(1,Math.min(99,Math.floor(Number(v))||1));saveSheet();renderSheet()};
+ $('sheetgrid').querySelectorAll('[data-sq]').forEach(b=>b.onclick=()=>{const [id,d]=b.dataset.sq.split('|');const c=sheet.find(x=>x.id===id);if(c)setQ(id,c.qty+(+d))});
+ $('sheetgrid').querySelectorAll('[data-sqin]').forEach(i=>i.onchange=()=>setQ(i.dataset.sqin,i.value));
+ $('sheetgrid').querySelectorAll('[data-srem]').forEach(b=>b.onclick=()=>{sheet=sheet.filter(c=>c.id!==b.dataset.srem);saveSheet();renderSheet()});
+ $('sheettotal').textContent=tot?`${tot} carte(s) : ${pages} planche(s) de ${PER_PAGE}. ${free?`Il reste ${free} emplacement(s) libre(s) sur la dernière planche.`:'Toutes les planches sont complètes.'}`:'Planche vide : cherche un Pokémon ou ajoute une carte avec « + planche ».';
+ $('printSheet').disabled=tot===0;
+ $('printSheet').textContent=tot?`Imprimer la planche (${tot} cartes)`:'Imprimer la planche';
+}
+async function openSheetPicker(pid){
+ const pname=names[pid-1];
+ $('modal').classList.add('open');$('modalTitle').textContent=`Choisir la carte — ${pname}`;$('modalSub').textContent='Chargement du catalogue…';$('modalCards').innerHTML='';
+ try{await loadCardCatalog()}catch(e){$('modalSub').textContent=e.message;return}
+ const cands=(cardIndex.get(pid)||[]).filter(x=>cardImage(x.card)).map(x=>x.card).slice(0,60);
+ openPicker(`Choisir la carte — ${pname}`,`${cands.length} variante(s) avec image. Chaque clic ajoute un exemplaire à la planche.`,cands,null,async c=>{
+  const v=await validateCard(c,{id:pid,name:pname});if(!v)return false;
+  addToSheet(v);return true;
+ },true);
+}
+function sheetSearch(){
+ const raw=$('sheetSearch').value,q=norm(raw),box=$('sheetResults');
+ if(!q){box.innerHTML='';return}
+ const ids=names.map((_,i)=>i+1).filter(i=>norm(names[i-1]).includes(q)||String(i)===q).slice(0,12);
+ box.innerHTML=ids.length?ids.map(i=>`<button class="btn tiny" data-sp="${i}">#${i} ${esc(names[i-1])}</button>`).join(''):'<span class="muted">Aucun Pokémon trouvé.</span>';
+ box.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>openSheetPicker(+b.dataset.sp));
+}
+$('sheetSearch').oninput=sheetSearch;
+$('sheetClear').onclick=()=>{sheet=[];saveSheet();renderSheet()};
+renderSheet();
+
+/* ===== Impression ===== */
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function imgReady(im){
+ return new Promise(res=>{
+  if(im.complete)return res(im.naturalWidth>0);
+  const t=setTimeout(()=>res(false),15000);
+  im.addEventListener('load',()=>{clearTimeout(t);res(im.naturalWidth>0)},{once:true});
+  im.addEventListener('error',()=>{clearTimeout(t);res(false)},{once:true});
+ });
+}
+function energyCardsList(){const out=[];ENERGY_ORDER.forEach(t=>{const st=energyState[t];for(let k=0;k<st.qty;k++)out.push({...st.card,energyType:t})});return out}
+function printJobs(sel){
+ const jobs=(sel.decks||[]).map(i=>({title:decks[i].title,cards:deckPrintCards(decks[i]),deck:i}));
+ if(sel.energy)jobs.push({title:'Cartes Énergie',cards:energyCardsList(),deck:-1});
+ if(sel.sheet)jobs.push({title:'Planche à la carte',cards:sheetCards(),deck:-2});
+ return jobs;
+}
+function buildPrintArea(jobs,wm){
+ const area=$('printArea');area.textContent='';
+ jobs.forEach(job=>{
+  const pages=Math.ceil(job.cards.length/PER_PAGE);
+  for(let k=0;k<job.cards.length;k+=PER_PAGE){
+   const page=el('section','print-page');
+   page.appendChild(el('div','print-title',`${job.title} — proxys non officiels — page ${k/PER_PAGE+1}/${pages}`));
+   const g=el('div','print-grid');
+   job.cards.slice(k,k+PER_PAGE).forEach(c=>{
+    const card=el('div','print-card');
+    const im=new Image();im.alt=c.name;im.dataset.id=c.id;im.dataset.deck=job.deck;im.dataset.type=c.energyType||'';im.loading='eager';im.src=c.image;card.appendChild(im);
+    if(wm)card.appendChild(el('div','watermark','PROXY — NON OFFICIEL'));
+    g.appendChild(card);
+   });
+   page.appendChild(g);area.appendChild(page);
+  }
+ });
+ return [...area.querySelectorAll('img')];
+}
+let pendingPrint=null,wmPref=false;
+function showRecap(sel){
+ const ds=sel.decks||[];
+ if(!ds.length&&!sel.energy&&!sel.sheet)return;
+ if(!ds.every(i=>isReady(decks[i]))){$('deckstatus').textContent='Impression impossible : tous les decks demandés doivent être complets (cartes valides).';return}
+ if(ds.some(i=>deckPrintCards(decks[i]).length===0)){$('deckstatus').textContent='Impression impossible : aucune carte à imprimer (toutes les quantités sont à 0).';return}
+ if(sel.energy&&(totalEnergies()===0||energyBlocked())){$('energystatus').textContent='Impression impossible : choisis au moins une Énergie, et uniquement des types dont la carte est chargée.';return}
+ if(sel.sheet&&sheetTotal()===0){$('deckstatus').textContent='Impression impossible : la planche est vide.';return}
+ pendingPrint=sel;
+ const lines=[];let pages=0;
+ const warns=[];
+ ds.forEach(i=>{const d=decks[i],tot=deckPrintCards(d).length,pq=deckPokeQty(d);lines.push(`${esc(d.title)} : ${d.slots.length}/${d.pokeTarget} cartes Pokémon valides, ${tot} carte(s) à imprimer (${pq} Pokémon + ${tot-pq} Énergies)`);pages+=Math.ceil(tot/PER_PAGE);const m=deckMissingEnergy(d);if(m.length)warns.push(`${esc(d.title)} : Énergie ${esc(m.map(e=>ENERGY_LABEL[e.type]).join(', '))} sans carte chargée, non imprimée.`)});
+ if(sel.energy){const n=totalEnergies();lines.push(`Énergies : ${n} carte(s) valides (${esc(planText(energyCounts()))})`);pages+=Math.ceil(n/PER_PAGE)}
+ if(sel.sheet){const n=sheetTotal(),free=Math.ceil(n/PER_PAGE)*PER_PAGE-n;lines.push(`Planche à la carte : ${n} carte(s) valides${free?` (dernière planche incomplète : ${free} emplacement(s) libre(s))`:' (planches complètes)'}`);pages+=Math.ceil(n/PER_PAGE)}
+ const r=$('recap');
+ r.innerHTML=`<h3>Récapitulatif avant impression</h3><ul>${lines.map(l=>`<li>${l}</li>`).join('')}<li>Papier : A4 portrait — cartes de 63 × 88 mm, 3 par rangée, ${PER_PAGE} par page</li><li>Pages estimées : ${pages}</li></ul>${warns.length?`<p class="warn">${warns.join('<br>')}</p>`:''}<p><label><input type="checkbox" id="wmToggle"${wmPref?' checked':''}> Ajouter un filigrane « PROXY — NON OFFICIEL » sur chaque carte</label></p><p class="muted">Dans la boîte d'impression : échelle 100 % (« Taille réelle »), sans « Adapter à la page », pour garder 63 × 88 mm.</p><button class="btn primary" id="confirmPrint">Vérifier les images et imprimer</button> <button class="btn" id="cancelPrint">Annuler</button>`;
+ r.style.display='block';
+ $('wmToggle').onchange=e=>{wmPref=e.target.checked};
+ $('cancelPrint').onclick=()=>{r.style.display='none';pendingPrint=null};
+ $('confirmPrint').onclick=doPrint;
+ r.scrollIntoView({block:'nearest'});
+}
+async function doPrint(){
+ const sel=pendingPrint;if(!sel)return;
+ const btn=$('confirmPrint');btn.disabled=true;btn.textContent='Chargement des images…';
+ const imgs=buildPrintArea(printJobs(sel),wmPref);
+ const oks=await Promise.all(imgs.map(imgReady));
+ const bad=imgs.filter((_,k)=>!oks[k]);
+ if(bad.length){
+  bad.forEach(im=>{
+   const di=+im.dataset.deck;
+   if(di===-2){sheet=sheet.filter(c=>c.id!==im.dataset.id);imgCache.delete(im.src);saveSheet()}
+   else if(di>=0){const ty=im.dataset.type;if(ty&&energyState[ty]){if(energyState[ty].card)imgCache.delete(energyState[ty].card.image);energyOk.delete(im.dataset.id);energyState[ty].card=null}else if(decks[di])dropCard(decks[di],im.dataset.id)}
+   else{const t=im.dataset.type;imgCache.delete(energyState[t]&&energyState[t].card?energyState[t].card.image:'');energyOk.delete(im.dataset.id);if(energyState[t])energyState[t].card=null}
+  });
+  $('printArea').textContent='';renderDecks();renderEnergies();renderSheet();$('recap').style.display='none';pendingPrint=null;
+  $('deckstatus').textContent=`${bad.length} image(s) n'ont pas pu être chargées : impression annulée. Deck(s) marqué(s) incomplet(s) ou type d'Énergie à recharger.`;
+  return;
+ }
+ $('recap').style.display='none';pendingPrint=null;
+ document.body.classList.add('printing-decks');
+ window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-decks');$('printArea').textContent=''},{once:true});
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+}
+$('printDecks').onclick=()=>showRecap({decks:decks.map((_,i)=>i)});
+$('printEnergies').onclick=()=>showRecap({decks:[],energy:true});
+$('printSheet').onclick=()=>showRecap({decks:[],sheet:true});
+function printPanel(id,fmt){
+ document.body.classList.remove('printing-decks');
+ document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('print-target',x.id===id));
+ if(fmt)$(id).dataset.print=fmt;
+ window.addEventListener('afterprint',()=>document.querySelectorAll('.panel').forEach(x=>{x.classList.remove('print-target');delete x.dataset.print}),{once:true});
+ window.print();
+}
+$('printRules').onclick=()=>printPanel('rules');
+$('printRules30').onclick=()=>printPanel('rules','30');
+$('printRules60').onclick=()=>printPanel('rules','60');
+$('printView').onclick=()=>printPanel('dex');
+loadDex();
+
+</script>
+</body></html>
